@@ -1,77 +1,95 @@
-function edit_row(no) {
-    document.getElementById("edit_button" + no).style.display = "none";
-    document.getElementById("save_button" + no).style.display = "block";
-  
-    var firstName = document.getElementById("firstName_row" + no);
-    var lastName = document.getElementById("lastName_row" + no);
-    var email = document.getElementById("email_row" + no);
-    var phone = document.getElementById("phone_row" + no);
-  
-    var firstName_data = firstName.innerHTML;
-    var lastName_data = lastName.innerHTML;
-    var email_data = email.innerHTML;
-    var phone_data = phone.innerHTML;
-  
-    firstName.innerHTML =
-      "<input type='text' id='firstName_text" +
-      no +
-      "' value='" +
-      firstName_data +
-      "'>";
-    lastName.innerHTML =
-      "<input type='text' id='lastName_text" +
-      no +
-      "' value='" +
-      lastName_data +
-      "'>";
-    email.innerHTML =
-      "<input type='email' id='email_text" + no + "' value='" + email_data + "'>";
-    phone.innerHTML =
-      "<input type='phone' id='phone_text" + no + "' value='" + phone_data + "'>";
-  }
-  
-  function save_row(no) {
-    var firstName_val = document.getElementById("firstName_text" + no).value;
-    var lastName_val = document.getElementById("lastName_text" + no).value;
-    var email_val = document.getElementById("email_text" + no).value;
-    var phone_val = document.getElementById("phone_text" + no).value;
-  
-    document.getElementById("firstName_row" + no).innerHTML = firstName_val;
-    document.getElementById("lastName_row" + no).innerHTML = lastName_val;
-    document.getElementById("email_row" + no).innerHTML = email_val;
-    document.getElementById("phone_row" + no).innerHTML = phone_val;
-  
-    document.getElementById("edit_button" + no).style.display = "block";
-    document.getElementById("save_button" + no).style.display = "none";
-  }
-  
-  function delete_row(no) {
-    document.getElementById("row" + no + "").outerHTML = "";
-  }
-  
-  function add_row() {
-    var new_firstName = document.getElementById("new_firstName").value;
-    var new_lastName = document.getElementById("new_lastName").value;
-    var new_email = document.getElementById("new_email").value;
-    var new_phone = document.getElementById("new_phone").value;
-  
-    var table = document.getElementById("tableID");
-    var table_len = table.rows.length - 1;
-    var row = (table.insertRow(table_len).outerHTML =
-      `<tr id="row${table_len}">
-        <td id="firstName_row${table_len}">${new_firstName}</td>
-        <td id="lastName_row${table_len}">${new_lastName}</td>
-        <td id="email_row${table_len}">
-        ${new_email}</td>
-        <td id="phone_row${table_len}">${new_phone}</td>
-        <td><input type="button" id="edit_button${table_len}" value="Edit" class="edit btn btn-warning" onclick="edit_row(${table_len})">
-        <input type="button" id="save_button${table_len}" value="Save" class="save btn btn-primary" onclick="save_row(${table_len})">
-        <input type="button" value="Delete" class="delete btn btn-danger" onclick="delete_row(${table_len})"></td>
-      </tr>`);
-  
-    document.getElementById("new_firstName").value = "";
-    document.getElementById("new_lastName").value = "";
-    document.getElementById("new_email").value = "";
-    document.getElementById("new_phone").value = "";
-  }
-  
+$("form").submit(function (e) {
+  e.preventDefault();
+  var fname = $("input[name='name']").val();
+  var lname = $("input[name='lastName']").val();
+  var email = $("input[name='email']").val();
+  var phone = $("input[name='phone']").val();
+
+  $(".data-table tbody").append(
+    `<tr data-name="${fname}+" data-lastName="${lname}+" data-email="${email}" data-phone="${phone}">
+    <td>${fname}</td>
+    <td>${lname}</td>
+    <td>${email}</td>
+    <td>${phone}</td>
+    <td><button class='btn btn-info btn-xs btn-edit'>Edit</button><button class='btn btn-danger btn-xs btn-delete'>Delete</button></td>
+    </tr>`
+  );
+
+  $("input[name='name']").val("");
+  $("input[name='lastName']").val("");
+  $("input[name='email']").val("");
+  $("input[name='phone']").val("");
+});
+
+$("body").on("click", ".btn-delete", function () {
+  $(this).parents("tr").remove();
+});
+
+$("body").on("click", ".btn-edit", function () {
+  var fname = $(this).parents("tr").attr("data-name");
+  var lname = $(this).parents("tr").attr("data-lastName");
+  var email = $(this).parents("tr").attr("data-email");
+  var phone = $(this).parents("tr").attr("data-phone");
+
+  $(this)
+    .parents("tr")
+    .find("td:eq(0)")
+    .html(`<input name="edit_name" value="${fname}">`);
+  $(this)
+    .parents("tr")
+    .find("td:eq(1)")
+    .html(`<input name="edit_lastName" value="${lname}">`);
+  $(this)
+    .parents("tr")
+    .find("td:eq(2)")
+    .html(`<input name="edit_email" value="${email}">`);
+  $(this)
+    .parents("tr")
+    .find("td:eq(3)")
+    .html(`<input name="edit_phone" value="${phone}">`);
+
+  $(this)
+    .parents("tr")
+    .find("td:eq(4)")
+    .prepend(
+      "<button class='btn btn-info btn-xs btn-update'>Update</button><button class='btn btn-warning btn-xs btn-cancel'>Cancel</button>"
+    );
+  $(this).hide();
+});
+
+$("body").on("click", ".btn-cancel", function () {
+  var fname = $(this).parents("tr").attr("data-name");
+  var lname = $(this).parents("tr").attr("data-lastName");
+  var email = $(this).parents("tr").attr("data-email");
+  var phone = $(this).parents("tr").attr("data-phone");
+
+  $(this).parents("tr").find("td:eq(0)").text(fname);
+  $(this).parents("tr").find("td:eq(1)").text(lname);
+  $(this).parents("tr").find("td:eq(2)").text(email);
+  $(this).parents("tr").find("td:eq(3)").text(phone);
+
+  $(this).parents("tr").find(".btn-edit").show();
+  $(this).parents("tr").find(".btn-update").remove();
+  $(this).parents("tr").find(".btn-cancel").remove();
+});
+
+$("body").on("click", ".btn-update", function () {
+  var fname = $(this).parents("tr").find("input[name='edit_name']").val();
+  var lname = $(this).parents("tr").find("input[name='edit_lastName']").val();
+  var email = $(this).parents("tr").find("input[name='edit_email']").val();
+  var phone = $(this).parents("tr").find("input[name='edit_phone']").val();
+
+  $(this).parents("tr").find("td:eq(0)").text(fname);
+  $(this).parents("tr").find("td:eq(1)").text(lname);
+  $(this).parents("tr").find("td:eq(2)").text(email);
+  $(this).parents("tr").find("td:eq(3)").text(phone);
+
+  $(this).parents("tr").attr("data-name", fname);
+  $(this).parents("tr").attr("data-lastName", lname);
+  $(this).parents("tr").attr("data-email", email);
+  $(this).parents("tr").attr("data-phone", phone);
+
+  $(this).parents("tr").find(".btn-edit").show();
+  $(this).parents("tr").find(".btn-cancel").remove();
+  $(this).parents("tr").find(".btn-update").remove();
+});
